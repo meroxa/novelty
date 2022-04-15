@@ -45,4 +45,11 @@ def create_user_activity
     return [u.id, u.first_name, u.last_name, u.email, USER_ACTIVITIES[1..3].sample, timestamp, u.country, u.city]
 end
 
+def generate_user_activity(count:)
+    conn = PG.connect(ENV["DATABASE_URL"])
+    count.times do
+        conn.exec_params("INSERT INTO user_activity_n (user_id, first_name, last_name, email, activity, timestamp, country, city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", create_user_activity)
+    end
+end
+
 pry
