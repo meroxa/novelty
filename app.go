@@ -17,7 +17,7 @@ var _ turbine.App = (*App)(nil)
 
 type App struct{}
 
-const NoveltyContext = "meroxa-demo"
+const NoveltyContext = "meroxa-demo-1"
 
 func (a App) Run(v turbine.Turbine) error {
 	// Identify an upstream data store for your data app
