@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -83,7 +84,8 @@ func formatObservation(r turbine.Record) []string {
 	city := r.Payload.Get("city").(string)
 	email := r.Payload.Get("email").(string)
 	userID := r.Payload.Get("user_id").(string)
-	tod, err := timeOfDay(r.Payload.Get("timestamp").(string))
+	tsFloat := r.Payload.Get("timestamp").(float64)
+	tod, err := timeOfDay(fmt.Sprint(tsFloat))
 	if err != nil {
 		return nil
 	}
