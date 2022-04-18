@@ -63,13 +63,13 @@ func (c NoveltyClient) Observe(name string, data []string) (*NoveltyResponse, er
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("novelty response: %+v", string(body))
 
 	var nResp NoveltyResponse
 	err = json.Unmarshal(body, &nResp)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("novelty response: %+v", string(body))
 	return &nResp, nil
 }
 
