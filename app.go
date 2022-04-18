@@ -42,6 +42,10 @@ func (a App) Run(v turbine.Turbine) error {
 	if err != nil {
 		return err
 	}
+	err = v.RegisterSecret("NOVELTY_AUTH") // makes env var available to data app
+	if err != nil {
+		return err
+	}
 
 	// Specify what code to execute against upstream records
 	// with the `Process` function
