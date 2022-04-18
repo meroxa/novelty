@@ -57,13 +57,13 @@
             }]
           },
           "payload": {
-            "id": "100",
-            "user_id": "100",
+            "id": 100,
+            "user_id": 100,
             "first_name": "alice",
             "last_name": "doe",
             "email": "alice@example.com",
             "activity": "logged in",
-            "timestamp": "1650304405",
+            "timestamp": 1650304405,
             "country": "United States",
             "city": "San Francisco"
           }

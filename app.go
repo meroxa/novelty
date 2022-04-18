@@ -20,7 +20,7 @@ var _ turbine.App = (*App)(nil)
 
 type App struct{}
 
-const NoveltyContext = "testing-2"
+const NoveltyContext = "testing-1"
 
 func (a App) Run(v turbine.Turbine) error {
 	// Identify an upstream data store for your data app
@@ -83,14 +83,14 @@ func formatObservation(r turbine.Record) []string {
 	country := r.Payload.Get("country").(string)
 	city := r.Payload.Get("city").(string)
 	email := r.Payload.Get("email").(string)
-	userID := r.Payload.Get("user_id").(string)
+	userID := r.Payload.Get("user_id").(float64)
 	tsFloat := r.Payload.Get("timestamp").(float64)
 	tod, err := timeOfDay(fmt.Sprint(tsFloat))
 	if err != nil {
 		return nil
 	}
 
-	obs := []string{tod, country, city, email, userID}
+	obs := []string{tod, country, city, email, fmt.Sprint(userID)}
 
 	log.Printf("obs: %+v", obs)
 
