@@ -19,7 +19,7 @@ var _ turbine.App = (*App)(nil)
 
 type App struct{}
 
-const NoveltyContext = "testing-1"
+const NoveltyContext = "testing-2"
 
 func (a App) Run(v turbine.Turbine) error {
 	// Identify an upstream data store for your data app
