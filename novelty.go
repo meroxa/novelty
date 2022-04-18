@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
-const BasePath = "/api/v1/novelty/"
+const BasePath = "api/v1/novelty"
 
 type NoveltyResponse struct {
 	Observation        interface{} `json:"observation"`
@@ -63,8 +63,6 @@ func (c NoveltyClient) Observe(name string, data []string) (*NoveltyResponse, er
 		return nil, err
 	}
 
-	log.Printf("body: %s", string(body))
-
 	var nResp NoveltyResponse
 	err = json.Unmarshal(body, &nResp)
 	if err != nil {
@@ -75,7 +73,17 @@ func (c NoveltyClient) Observe(name string, data []string) (*NoveltyResponse, er
 
 func (c NoveltyClient) post(path string, data []byte) ([]byte, error) {
 	body := bytes.NewBuffer(data)
-	resp, err := c.client.Post(path, "application/json", body)
+	req, err := http.NewRequest(http.MethodPost, path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+
+	cookie := os.Getenv("NOVELTY_AUTH")
+	req.Header.Add("cookie", cookie)
+
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}

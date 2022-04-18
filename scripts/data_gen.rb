@@ -35,20 +35,36 @@ class User
 end
 
 USERS = []
-for i in 1..100
-    USERS[i] = User.new
+100.times do
+    USERS.append(User.new)
 end
 
 def create_user_activity
-    u = USERS.sample
+    u = USERS.sample(1).first
     timestamp = Time.now.utc
     return [u.id, u.first_name, u.last_name, u.email, USER_ACTIVITIES[1..3].sample, timestamp, u.country, u.city]
+end
+
+def create_anomaly_location(country:, city:)
+    u = USERS.sample(1).first
+    timestamp = Time.now.utc
+    activity = [u.id, u.first_name, u.last_name, u.email, USER_ACTIVITIES[0], timestamp, country, city]
+    conn = PG.connect(ENV["DATABASE_URL"])
+    conn.exec_params("INSERT INTO user_activity(user_id, first_name, last_name, email, activity, timestamp, country, city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", activity)
+end
+
+def create_anomaly_timestamp(timestamp:)
+    u = USERS.sample(1).first
+    timestamp = Time.parse(timestamp).utc
+    activity = [u.id, u.first_name, u.last_name, u.email, USER_ACTIVITIES[0], timestamp, u.country, u.city]
+    conn = PG.connect(ENV["DATABASE_URL"])
+    conn.exec_params("INSERT INTO user_activity(user_id, first_name, last_name, email, activity, timestamp, country, city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", activity)
 end
 
 def generate_user_activity(count:)
     conn = PG.connect(ENV["DATABASE_URL"])
     count.times do
-        conn.exec_params("INSERT INTO user_activity_n (user_id, first_name, last_name, email, activity, timestamp, country, city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", create_user_activity)
+        conn.exec_params("INSERT INTO user_activity(user_id, first_name, last_name, email, activity, timestamp, country, city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", create_user_activity)
     end
 end
 

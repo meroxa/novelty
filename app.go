@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
+
 	// Dependencies of Turbine
 	"github.com/meroxa/turbine-go"
 	"github.com/meroxa/turbine-go/runner"
-	"log"
-	"os"
 )
 
 func main() {
@@ -17,19 +19,19 @@ var _ turbine.App = (*App)(nil)
 
 type App struct{}
 
-const NoveltyContext = "meroxa-demo-1"
+const NoveltyContext = "testing-1"
 
 func (a App) Run(v turbine.Turbine) error {
 	// Identify an upstream data store for your data app
 	// with the `Resources` function
-	db, err := v.Resources("demodb")
+	db, err := v.Resources("noveltydb")
 	if err != nil {
 		return err
 	}
 
 	// Specify which upstream records to pull
 	// with the `Records` function
-	rr, err := db.Records("events", nil)
+	rr, err := db.Records("user_activity", nil)
 	if err != nil {
 		return err
 	}
@@ -47,7 +49,7 @@ func (a App) Run(v turbine.Turbine) error {
 
 	// write the augmented records (including anomaly data) back
 	// into the same database, but in a different table
-	err = db.Write(res, "events_novelty", nil)
+	err = db.Write(res, "user_activity_enriched", nil)
 	if err != nil {
 		return err
 	}
@@ -73,10 +75,46 @@ func (f DetectAnomaly) Process(stream []turbine.Record) ([]turbine.Record, []tur
 
 // formatObservation takes a map[string]interface{} and flattens it into a []string
 func formatObservation(r turbine.Record) []string {
-	var obs []string
-	for _, v := range r.Payload {
-		obs = append(obs, fmt.Sprint(v))
+	country := r.Payload.Get("country").(string)
+	city := r.Payload.Get("city").(string)
+	email := r.Payload.Get("email").(string)
+	userID := r.Payload.Get("user_id").(string)
+	tod, err := timeOfDay(r.Payload.Get("timestamp").(string))
+	if err != nil {
+		return nil
 	}
 
+	obs := []string{tod, country, city, email, userID}
+
+	log.Printf("obs: %+v", obs)
+
 	return obs
+}
+
+// map timestamp to a time of day i.e. morning, afternoon, evening, night
+func timeOfDay(t string) (string, error) {
+	intTime, err := strconv.ParseInt(t, 10, 64)
+	if err != nil {
+		return "", err
+	}
+
+	ts := time.Unix(intTime, 0)
+
+	splitAfternoon := 12
+	splitEvening := 17
+	splitNight := 21
+
+	if ts.Hour() < splitAfternoon {
+		return "morning", nil
+	}
+
+	if ts.Hour() >= splitAfternoon && ts.Hour() < splitEvening {
+		return "afternoon", nil
+	}
+
+	if ts.Hour() >= splitEvening && ts.Hour() < splitNight {
+		return "evening", nil
+	}
+
+	return "night", nil
 }

@@ -3,6 +3,6 @@
   "language": "golang",
   "environment": "common",
   "resources": {
-    "demodb": "fixtures/demo.json"
+    "noveltydb": "fixtures/demo.json"
   }
 }
