@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -68,6 +69,7 @@ func (c NoveltyClient) Observe(name string, data []string) (*NoveltyResponse, er
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("novelty response: %+v", string(body))
 	return &nResp, nil
 }
 
