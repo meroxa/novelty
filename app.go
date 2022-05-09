@@ -85,7 +85,7 @@ func formatObservation(r turbine.Record) []string {
 	email := r.Payload.Get("email").(string)
 	userID := r.Payload.Get("user_id").(float64)
 	tsFloat := r.Payload.Get("timestamp").(float64)
-	tod, err := timeOfDay(fmt.Sprint(tsFloat))
+	tod, err := timeOfDay(fmt.Sprint(int(tsFloat)))
 	log.Printf("tod: %+v", tod)
 	if err != nil {
 		log.Printf("error in formatObservation: %s", err.Error())
