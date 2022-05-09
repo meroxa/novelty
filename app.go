@@ -70,7 +70,7 @@ func (f DetectAnomaly) Process(stream []turbine.Record) ([]turbine.Record, []tur
 		nClient, err := NewNoveltyClient(serverURL)
 		res, err := nClient.Observe(NoveltyContext, formatObservation(r))
 		if err != nil {
-			log.Printf("error: %s", err.Error())
+			log.Printf("error in process: %s", err.Error())
 		}
 		r.Payload.Set("novelty", res)
 		stream[i] = r
@@ -86,7 +86,9 @@ func formatObservation(r turbine.Record) []string {
 	userID := r.Payload.Get("user_id").(float64)
 	tsFloat := r.Payload.Get("timestamp").(float64)
 	tod, err := timeOfDay(fmt.Sprint(tsFloat))
+	log.Printf("tod: %+v", tod)
 	if err != nil {
+		log.Printf("error in formatObservation: %s", err.Error())
 		return nil
 	}
 
