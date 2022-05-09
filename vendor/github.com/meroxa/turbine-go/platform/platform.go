@@ -3,9 +3,11 @@ package platform
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -29,7 +31,7 @@ func New(deploy bool, imageName string) Turbine {
 		log.Fatalln(err)
 	}
 
-	ac, err := turbine.ReadAppConfig()
+	ac, err := turbine.ReadAppConfig("")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -145,15 +147,38 @@ func (r Resource) Records(collection string, cfg turbine.ResourceConfigs) (turbi
 	}, nil
 }
 
-func (r Resource) Write(rr turbine.Records, collection string, cfg turbine.ResourceConfigs) error {
+func (r Resource) Write(rr turbine.Records, collection string) error {
+	return r.WriteWithConfig(rr, collection, turbine.ResourceConfigs{})
+}
+
+func (r Resource) WriteWithConfig(rr turbine.Records, collection string, cfg turbine.ResourceConfigs) error {
 	// bail if dryrun
 	if r.client == nil {
 		return nil
 	}
 
+	connectorConfig := cfg.ToMap()
+	switch r.Type {
+	case "redshift", "postgres", "mysql", "sqlserver": // JDBC sink
+		connectorConfig["table.name.format"] = strings.ToLower(collection)
+	case "mongodb":
+		connectorConfig["collection"] = strings.ToLower(collection)
+	case "s3":
+		connectorConfig["aws_s3_prefix"] = strings.ToLower(collection) + "/"
+	case "snowflakedb":
+		r := regexp.MustCompile("^[a-zA-Z]{1}[a-zA-Z0-9_]*$")
+		matched := r.MatchString(collection)
+		if !matched {
+			return fmt.Errorf("%q is an invalid Snowflake name - must start with "+
+				"a letter and contain only letters, numbers, and underscores", collection)
+		}
+		connectorConfig["snowflake.topic2table.map"] =
+			fmt.Sprintf("%s:%s", rr.Stream, collection)
+	}
+
 	ci := &meroxa.CreateConnectorInput{
 		ResourceID:    r.ID,
-		Configuration: cfg.ToMap(),
+		Configuration: connectorConfig,
 		Type:          meroxa.ConnectorTypeDestination,
 		Input:         rr.Stream,
 		PipelineName:  r.v.config.Pipeline,
