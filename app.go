@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -72,7 +73,14 @@ func (f DetectAnomaly) Process(stream []turbine.Record) ([]turbine.Record, []tur
 		if err != nil {
 			log.Printf("error in process: %s", err.Error())
 		}
-		r.Payload.Set("novelty", res)
+
+		// embed novelty score as string
+		resString, err := json.Marshal(res)
+		if err != nil {
+			log.Printf("error marshaling novelty response: %s", err.Error())
+			return nil, nil
+		}
+		r.Payload.Set("novelty", resString)
 		stream[i] = r
 	}
 	return stream, nil
