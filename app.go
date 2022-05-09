@@ -54,7 +54,7 @@ func (a App) Run(v turbine.Turbine) error {
 
 	// write the augmented records (including anomaly data) back
 	// into the same database, but in a different table
-	err = db.Write(res, "user_activity_enriched", nil)
+	err = db.Write(res, "user_activity_enriched")
 	if err != nil {
 		return err
 	}
