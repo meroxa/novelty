@@ -80,7 +80,7 @@ func (f DetectAnomaly) Process(stream []turbine.Record) ([]turbine.Record, []tur
 			log.Printf("error marshaling novelty response: %s", err.Error())
 			return nil, nil
 		}
-		r.Payload.Set("novelty", resString)
+		r.Payload.Set("novelty", string(resString))
 		stream[i] = r
 	}
 	return stream, nil
