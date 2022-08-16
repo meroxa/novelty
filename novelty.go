@@ -12,8 +12,10 @@ import (
 	"time"
 )
 
+// BasePath for the Novelty REST API
 const BasePath = "api/v1/novelty"
 
+// NoveltyResponse models the response from the Novelty Server API
 type NoveltyResponse struct {
 	Observation        interface{} `json:"observation"`
 	Score              float32     `json:"score"`
@@ -25,17 +27,20 @@ type NoveltyResponse struct {
 	MostNovelComponent Component   `json:"mostNovelComponent"`
 }
 
+// Component ...
 type Component struct {
 	Index   int     `json:"index"`
 	Value   string  `json:"value"`
 	Novelty float32 `json:"novelty"`
 }
 
+// NoveltyClient wraps http.Client for convenience
 type NoveltyClient struct {
 	serverURL string
 	client    http.Client
 }
 
+// NewNoveltyClient constructor
 func NewNoveltyClient(serverURL string) (NoveltyClient, error) {
 	// validate serverURL
 	_, err := url.Parse(serverURL)
@@ -51,6 +56,8 @@ func NewNoveltyClient(serverURL string) (NoveltyClient, error) {
 	}, nil
 }
 
+// Observe calls the Novelty Server API submitting an "observation". The server
+// synchronously returns a NoveltyResponse with the novelty details embedded.
 func (c NoveltyClient) Observe(name string, data []string) (*NoveltyResponse, error) {
 	path := fmt.Sprintf("%s/%s/%s/observe", c.serverURL, BasePath, name)
 
@@ -83,7 +90,9 @@ func (c NoveltyClient) post(path string, data []byte) ([]byte, error) {
 	req.Header.Add("Content-Type", "application/json")
 
 	cookie := os.Getenv("NOVELTY_AUTH")
-	req.Header.Add("cookie", cookie)
+	if cookie != "" {
+		req.Header.Add("cookie", cookie)
+	}
 
 	resp, err := c.client.Do(req)
 	if err != nil {

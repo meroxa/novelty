@@ -21,6 +21,7 @@ var _ turbine.App = (*App)(nil)
 
 type App struct{}
 
+// NoveltyContext is the namespace used by the Novelty server
 const NoveltyContext = "testing-1"
 
 func (a App) Run(v turbine.Turbine) error {
@@ -63,8 +64,10 @@ func (a App) Run(v turbine.Turbine) error {
 	return nil
 }
 
+// DetectAnomaly struct must implements the Turbine Function signature
 type DetectAnomaly struct{}
 
+// Process function does the actual work
 func (f DetectAnomaly) Process(stream []turbine.Record) []turbine.Record {
 	for i, r := range stream {
 		serverURL := os.Getenv("NOVELTY_SERVER_URL")
