@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -33,7 +32,7 @@ func (c *AppConfig) setPipelineName() {
 	}
 }
 
-func ReadAppConfig(appPath string) (AppConfig, error) {
+var ReadAppConfig = func(appName, appPath string) (AppConfig, error) {
 	if appPath == "" {
 		exePath, err := os.Executable()
 		if err != nil {
@@ -42,7 +41,7 @@ func ReadAppConfig(appPath string) (AppConfig, error) {
 		appPath = path.Dir(exePath)
 	}
 
-	b, err := ioutil.ReadFile(appPath + "/" + "app.json")
+	b, err := os.ReadFile(appPath + "/" + "app.json")
 	if err != nil {
 		return AppConfig{}, err
 	}
@@ -53,6 +52,9 @@ func ReadAppConfig(appPath string) (AppConfig, error) {
 		return AppConfig{}, err
 	}
 
+	if appName != "" {
+		ac.Name = appName
+	}
 	err = ac.validateAppConfig()
 	if err != nil {
 		return AppConfig{}, err

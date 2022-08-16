@@ -51,7 +51,7 @@ func (a App) Run(v turbine.Turbine) error {
 
 	// Specify what code to execute against upstream records
 	// with the `Process` function
-	res, _ := v.Process(rr, DetectAnomaly{})
+	res := v.Process(rr, DetectAnomaly{})
 
 	// write the augmented records (including anomaly data) back
 	// into the same database, but in a different table
@@ -65,7 +65,7 @@ func (a App) Run(v turbine.Turbine) error {
 
 type DetectAnomaly struct{}
 
-func (f DetectAnomaly) Process(stream []turbine.Record) ([]turbine.Record, []turbine.RecordWithError) {
+func (f DetectAnomaly) Process(stream []turbine.Record) []turbine.Record {
 	for i, r := range stream {
 		serverURL := os.Getenv("NOVELTY_SERVER_URL")
 		nClient, err := NewNoveltyClient(serverURL)
@@ -78,12 +78,12 @@ func (f DetectAnomaly) Process(stream []turbine.Record) ([]turbine.Record, []tur
 		resString, err := json.Marshal(res)
 		if err != nil {
 			log.Printf("error marshaling novelty response: %s", err.Error())
-			return nil, nil
+			return nil
 		}
 		r.Payload.Set("novelty", string(resString))
 		stream[i] = r
 	}
-	return stream, nil
+	return stream
 }
 
 // formatObservation takes a map[string]interface{} and flattens it into a []string
