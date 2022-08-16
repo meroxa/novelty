@@ -9,8 +9,8 @@ It reads records from a table named: `user_activity` and will write to a table n
 ### Prerequisites
 
 * Postgres Database
-* Novelty Detector Server
-* Meroxa Data Platform account
+* [Novelty Detector Server](https://www.thatdot.com/product/novelty-detector)
+* [Meroxa Data Platform](https://meroxa.com) account
 
 ### Steps
 
@@ -28,7 +28,7 @@ meroxa apps deploy
 
 ## Scripts
 
-Included in this repo is a Ruby script (`data_gen.rb`) that uses the [Faker]() gem to generate fake user data.
+Included in this repo is a Ruby script (`data_gen.rb`) that uses the [Faker](https://github.com/faker-ruby/faker) gem to generate fake user data.
 
 The script requires the environment variable `DATABASE_URL` to be set, so that it can write records into Postgres.
 
